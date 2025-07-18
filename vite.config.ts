@@ -17,7 +17,7 @@ export default defineConfig({
       formats: ['es'],
       fileName: () => 'game.js'
     },
-    target: 'es2015',
+    target: 'es2016',
     outDir: 'build',
     minify: false,
     rollupOptions: {

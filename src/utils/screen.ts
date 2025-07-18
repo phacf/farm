@@ -1,9 +1,34 @@
-import { Colors } from "@constants/screen/colors"
-import { ScreenConfig } from "@constants/screen/config"
-
-export class ScreenUtils {
-    static printc(text: string,x: number, y: number, color: number = Colors.RED) {
-        const width = print(text, 0, -6)
-        print(text, (x - width) / 2, (y - 6) / 2, color )
-    }
+/**
+ * 
+ * @param px position x
+ * @param py position y
+ * @param set lib with tile set to identify
+ * @returns 
+ */
+export function detectTile(px: number, py: number, set: number[]): boolean {
+    let cx = Math.floor(px / 8)
+    let cy = Math.floor(py / 8)
+    let tile = mget(cx, cy)
+    return set.includes(tile)
 }
+
+/**
+ * limitar limite da tela
+ */
+
+// x = Math.max(0, Math.min(240 - 8, x))
+// y = Math.max(0, Math.min(136 - 8, y))
+
+/**
+ * 
+ * @param limit screen w
+ * @param size ex: player w
+ * @param direction ex: player x
+ * @returns 
+ */
+export function checkLimit(limit: number, size: number, direction: number) {
+    return Math.max(0, Math.min(limit - size, direction))
+
+}
+
+
