@@ -1,13 +1,13 @@
-export const keypad = {
+export const Keypad = {
   // Player 1 (ID base: 0)
   up: 0,
   down: 1,
   left: 2,
   right: 3,
-  z: 4, //A
-  x: 5, //B
-  a: 6, //X
-  s: 7, //Y
+  a: 4, //A z
+  b: 5, //B x
+  x: 6, //X a
+  y: 7, //Y s
 
   // Player 2 (ID base: 8)
   up2: 8,
@@ -40,7 +40,7 @@ export const keypad = {
   y4: 31,
 } as const;
 
-export const keyboard = {
+export const Keyboard = {
 
   //LETTERS
 

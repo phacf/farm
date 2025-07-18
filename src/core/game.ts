@@ -1,7 +1,11 @@
+import { Character } from "@entities/character"
+
 export class Game {
+    player = new Character()
     update(){}
 
     draw(){
-        print('Dark Fortress', 0,0,12)
+        map()
+        this.player.draw()
     }
 }

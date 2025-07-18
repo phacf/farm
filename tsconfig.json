@@ -11,7 +11,8 @@
     "paths": {
       "@core/*": ["core/*"],
       "@constants/*": ["constants/*"],
-      "@tic/*": ["./tic/*"]
+      "@tic/*": ["../tic/*"],
+      "@entities/*": ["entities/*"]
 
 
     }
