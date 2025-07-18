@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "ESNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "outDir": "./build",
+    "baseUrl": "./src",
+    "paths": {
+      "@core/*": ["core/*"],
+      "@constants/*": ["constants/*"],
+      "@tic/*": ["./tic/*"]
+
+
+    }
+  },
+  "include": ["src/**/*"]
+}
