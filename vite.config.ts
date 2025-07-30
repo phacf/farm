@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/main.ts',
-      name: 'Dark Fortress',
+      name: 'farm',
       formats: ['es'],
       fileName: () => 'game.js'
     },

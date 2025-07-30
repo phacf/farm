@@ -3,7 +3,7 @@ import { Game } from "@core/game";
 const game = new Game();
 
 function TIC() {
-    cls()
+    cls(3)
     game.update();
     game.draw();
 }

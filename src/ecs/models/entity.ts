@@ -1,6 +1,5 @@
 import { ComponentClass, ComponentRegistry, IEntity } from "@interfaces/Entity";
 import { IdController } from "controllers/idController";
-
 export class Entity implements IEntity {
   private idController = new IdController()
   id: number;
