@@ -122,14 +122,18 @@ function changeTile(spriteId, x, y) {
   mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId);
 }
 function dirtActions(x, y, tileId) {
-  changeTile(17, x, y);
+  if (tileId === 0 || tileId === 2) changeTile(17, x, y);
+}
+function waterActions(x, y, tileId) {
+  if (tileId === 18) changeTile(19, x, y);
 }
 function CharacterTileInteractionSystem(entity, input) {
   const pos = entity.get(PositionComponent);
   if (!pos) return;
   if (input.pressA()) {
-    onTile(pos.x, pos.y);
-    dirtActions(pos.x, pos.y);
+    const tile = onTile(pos.x, pos.y);
+    dirtActions(pos.x, pos.y, tile);
+    waterActions(pos.x, pos.y, tile);
   }
 }
 function CharacterTimerSystem(entity) {
