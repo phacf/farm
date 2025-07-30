@@ -1,5 +1,6 @@
 import { CropsComponent } from "@ecs/components/cropComponent";
 import { GameStateComponent } from "@ecs/components/gameStateComponent";
+import { InventoryComponent } from "@ecs/components/inventoryComponent";
 import { PositionComponent } from "@ecs/components/positionComponent";
 import { SpriteComponent } from "@ecs/components/spriteComponent";
 import { TimerComponent } from "@ecs/components/timerComponent";
@@ -16,9 +17,7 @@ export function createPlayerEntity(): Entity {
         .add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 })
         .add(CropsComponent, new CropsComponent())
         .add(GameStateComponent, { state: "inGame" })
-
-
-
+        .add(InventoryComponent, new InventoryComponent())
 
     return entity
 }

@@ -1,4 +1,4 @@
-import { cropsMap } from "@constants/map/map";
+import { cropsMap } from "@constants/itens/itens";
 import { CropsComponent } from "@ecs/components/cropComponent";
 import { Entity } from "@ecs/models/entity";
 import { MapScreen } from "@tic/map/map";

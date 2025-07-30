@@ -29,6 +29,24 @@ class GameStateComponent {
     this.state = state;
   }
 }
+class InventoryComponent {
+  constructor(gold = 0, water = 3, itens = []) {
+    this.select = { x: 1, y: 1 };
+    this.gold = gold;
+    this.water = water;
+    this.itens = itens;
+  }
+  equip(item) {
+    this.equiped = item;
+  }
+  unequip() {
+    this.equiped = void 0;
+  }
+  add(item) {
+    if (this.itens.length === 10) return;
+    this.itens.push(item);
+  }
+}
 class PositionComponent {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -100,7 +118,7 @@ class Entity {
 }
 function createPlayerEntity() {
   const entity = new Entity();
-  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 }).add(CropsComponent, new CropsComponent()).add(GameStateComponent, { state: "inGame" });
+  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 }).add(CropsComponent, new CropsComponent()).add(GameStateComponent, { state: "inGame" }).add(InventoryComponent, new InventoryComponent());
   return entity;
 }
 function CharacterDrawSystem(entity) {
@@ -110,6 +128,14 @@ function CharacterDrawSystem(entity) {
   if (!pos || !sprite || !t) return;
   const id = sprite.id + t.time / sprite.interval % sprite.n;
   spr(id, pos.x, pos.y, sprite.colorKey);
+}
+function InputSystem(entity, input) {
+  const inventory = entity.get(InventoryComponent);
+  const gameState = entity.get(GameStateComponent);
+  if (!inventory || !gameState) return;
+  if (input.pressB()) {
+    gameState.state = gameState.state === "inGame" ? "openInventory" : "inGame";
+  }
 }
 function CharacterMovementSystem(entity, input) {
   const vel = entity.get(VelocityComponent);
@@ -303,6 +329,34 @@ class Game {
     this.input = new InputController();
   }
   update() {
+    const gameState = this.player.get(GameStateComponent);
+    if (!gameState) return;
+    InputSystem(this.player, this.input);
+    switch (gameState.state) {
+      case "inGame":
+        this.updateInGame();
+        break;
+    }
+  }
+  // draw() {
+  //     const gameState = this.player.get(GameStateComponent);
+  //     if (!gameState) return;
+  //     switch (gameState.state) {
+  //         case "inGame":
+  //             this.drawIngame();
+  //             break;
+  //         case "openInventory":
+  //             // lógica para inventory
+  //             break;
+  //         case "start":
+  //             // lógica para start
+  //             break;
+  //         case "gameOver":
+  //             // lógica para game over
+  //             break;
+  //     }
+  // }
+  updateInGame() {
     CharacterMovementSystem(this.player, this.input);
     CharacterTimerSystem(this.player);
     CharacterTileInteractionSystem(this.player, this.input);

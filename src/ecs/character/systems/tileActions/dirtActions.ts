@@ -1,4 +1,4 @@
-import { dirt, grass, soil } from "@constants/map/map";
+import { dirt, grass, soil } from "@constants/itens/itens";
 import { changeTile } from "utils/screen";
 
 export function dirtActions(x: number, y: number, tileId?: number) { //entity to take equiped
