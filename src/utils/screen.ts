@@ -19,10 +19,10 @@ export function detectTile(px: number, py: number, set: readonly number[]): bool
  * @returns 
  */
 export function onTile(px: number, py: number): number {
-    let cx = Math.floor(px / 8)
-    let cy = Math.floor(py / 8)
+    let cx = Math.floor((px + 4) / 8)
+    let cy = Math.floor((py + 4) / 8)
     return mget(cx, cy)
-    
+
 }
 
 
@@ -123,11 +123,15 @@ export function aimRight(x: number, y: number, w: number, h: number) {
     }
 }
 
-export function aimleft(x: number, y: number, w: number, h: number) { 
+export function aimleft(x: number, y: number, w: number, h: number) {
     return {
         x: Math.floor((x - w / 2) / 8),
         y: Math.floor((y + h / 2) / 8)
     }
+}
+
+export function changeTile(spriteId: number, x: number, y: number) {
+    mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId)
 }
 
 

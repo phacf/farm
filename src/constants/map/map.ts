@@ -1,8 +1,9 @@
 export const MapConfig = {
-    solids: [1,2,3,4,5,6,7,8,9,10,11,12],
-    path: [16,17,18,19],
-    stairs: [20,21,22,23],
-    closedDoor: [32,33,34,35],
-    openDoor: [36,37,38,39],
-    itens: [48,49,50,51,52,53,54,55,56,57,58,59,60,61,62]
+    water: [4, 5, 6],
+    wall: [20, 36, 61, 62, 63, 79, 95, 94, 93, 77],
+    FoodEmptyTrough: [91,107,123],
+    FoodFilledTrough: [92,108,124],//cocho
+    WaterEmptyTrough: [59,75],
+    WaterFilledTrough: [60,76],
+    commonSolids:[3,15,16,29,30,31,32,44,45,46,47,48,50,64,66,80,96,98,110,111,112,126,127,128,143,144,140,141,142,143,144,157,160,158,159], //houses trees, rocks
 } as const;

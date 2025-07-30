@@ -81,7 +81,7 @@ class Entity {
 }
 function createPlayerEntity() {
   const entity = new Entity();
-  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 15, colorKey: 0 });
+  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 });
   return entity;
 }
 function CharacterDrawSystem(entity) {
@@ -112,6 +112,25 @@ function CharacterMovementSystem(entity, input) {
   }
   pos.x += vel.dx * vel.speed;
   pos.y += vel.dy * vel.speed;
+}
+function onTile(px, py) {
+  let cx = Math.floor((px + 4) / 8);
+  let cy = Math.floor((py + 4) / 8);
+  return mget(cx, cy);
+}
+function changeTile(spriteId, x, y) {
+  mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId);
+}
+function dirtActions(x, y, tileId) {
+  changeTile(17, x, y);
+}
+function CharacterTileInteractionSystem(entity, input) {
+  const pos = entity.get(PositionComponent);
+  if (!pos) return;
+  if (input.pressA()) {
+    onTile(pos.x, pos.y);
+    dirtActions(pos.x, pos.y);
+  }
 }
 function CharacterTimerSystem(entity) {
   const t = entity.get(TimerComponent);
@@ -190,6 +209,7 @@ class Game {
   update() {
     CharacterMovementSystem(this.player, this.input);
     CharacterTimerSystem(this.player);
+    CharacterTileInteractionSystem(this.player, this.input);
   }
   draw() {
     map();
