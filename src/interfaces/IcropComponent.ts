@@ -2,8 +2,6 @@ import { IPositionComponent } from "./IPositionComponent";
 
 export interface IcropComponent {
     crops: IcropTile[];
-    add(crop: IcropTile): void
-    remove(x: number, y: number): void
 }
 
 export interface IcropTile {

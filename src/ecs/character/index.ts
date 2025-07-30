@@ -10,12 +10,12 @@ import { Entity } from "@ecs/models/entity";
 
 export function createPlayerEntity(): Entity {
     const entity = new Entity();
-    entity.add(PositionComponent)
+    entity.add(PositionComponent, { x: 0, y: 0 })
         .add(VelocityComponent, { dx: 0, dy: 0, speed: 1 })
-        .add(TimerComponent)
+        .add(TimerComponent, { time: 0 })
         .add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 })
-        .add(CropsComponent)
-        .add(GameStateComponent)
+        .add(CropsComponent, new CropsComponent())
+        .add(GameStateComponent, { state: "inGame" })
 
 
 

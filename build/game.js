@@ -10,6 +10,25 @@
 // author:  game developer
 // desc:    farm game with ECS
 // script:  js
+class CropsComponent {
+  constructor(crops = []) {
+    this.crops = crops;
+  }
+  add(crop) {
+    this.crops.push(crop);
+  }
+  remove(x, y) {
+    this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
+  }
+  get(x, y) {
+    return this.crops.find((c) => c.location.x === x && c.location.y === y);
+  }
+}
+class GameStateComponent {
+  constructor(state) {
+    this.state = state;
+  }
+}
 class PositionComponent {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -81,7 +100,7 @@ class Entity {
 }
 function createPlayerEntity() {
   const entity = new Entity();
-  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 });
+  entity.add(PositionComponent, { x: 0, y: 0 }).add(VelocityComponent, { dx: 0, dy: 0, speed: 1 }).add(TimerComponent, { time: 0 }).add(SpriteComponent, { id: 256, n: 2, interval: 20, colorKey: 0 }).add(CropsComponent, new CropsComponent()).add(GameStateComponent, { state: "inGame" });
   return entity;
 }
 function CharacterDrawSystem(entity) {
@@ -121,11 +140,54 @@ function onTile(px, py) {
 function changeTile(spriteId, x, y) {
   mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId);
 }
+const soil = 0;
+const grass = 1;
+const dirt = 17;
+const seed = 18;
+const watered = 19;
+const cropsMap = {
+  beet: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 82
+  },
+  carrot: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 34
+  },
+  corn: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 114
+  },
+  grape: {
+    seed,
+    watered,
+    plant: 49,
+    grown: 66
+  },
+  pupkin: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 98
+  },
+  tomato: {
+    seed,
+    watered,
+    plant: 49,
+    grown: 50
+  }
+};
 function dirtActions(x, y, tileId) {
-  if (tileId === 0 || tileId === 2) changeTile(17, x, y);
+  if (tileId === soil || tileId === grass) changeTile(dirt, x, y);
 }
 function waterActions(x, y, tileId) {
-  if (tileId === 18) changeTile(19, x, y);
+  if (tileId === seed) changeTile(watered, x, y);
 }
 function CharacterTileInteractionSystem(entity, input) {
   const pos = entity.get(PositionComponent);
@@ -140,6 +202,36 @@ function CharacterTimerSystem(entity) {
   const t = entity.get(TimerComponent);
   if (!t) return;
   t.time++;
+}
+const MapScreen = {
+  w: 29,
+  h: 16
+};
+function MapDrawSystem(entity) {
+  const crops = entity.get(CropsComponent);
+  if (!crops) return;
+  for (let y = 0; y <= MapScreen.h; y++) {
+    for (let x = 0; x <= MapScreen.w; x++) {
+      const crop = crops.get(x, y);
+      if (!crop) continue;
+      const plant = cropsMap[crop.seedType];
+      mset(x, y, plant[crop.stage]);
+    }
+  }
+}
+function MapUpdateSystem(entity) {
+  const field = entity.get(CropsComponent);
+  if (!field) return;
+  for (let crop of field.crops) {
+    if (crop.time > 0) {
+      crop.time--;
+    } else if (crop.stage === "plant") {
+      crop.stage = "grown";
+    } else if (crop.stage === "watered") {
+      crop.stage = "plant";
+      crop.time = crop.stageTime;
+    }
+  }
 }
 const Keypad = {
   // Player 1 (ID base: 0)
@@ -214,9 +306,11 @@ class Game {
     CharacterMovementSystem(this.player, this.input);
     CharacterTimerSystem(this.player);
     CharacterTileInteractionSystem(this.player, this.input);
+    MapUpdateSystem(this.player);
   }
   draw() {
     map();
+    MapDrawSystem(this.player);
     CharacterDrawSystem(this.player);
   }
 }

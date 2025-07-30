@@ -22,8 +22,8 @@ export class Game {
     draw() {
         map()
         //ingame
-        CharacterDrawSystem(this.player)
         MapDrawSystem(this.player)
+        CharacterDrawSystem(this.player)
 
     }
 }
