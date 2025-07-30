@@ -10,7 +10,7 @@ export class Entity implements IEntity {
     this.id = this.idController.getNewId();
   }
 
-  add<T extends ComponentRegistry[keyof ComponentRegistry]>(cls: new (...args: any[]) => T, instance: T): this {
+  add<T extends ComponentRegistry[keyof ComponentRegistry]>(cls: new (...args: any[]) => T, instance?: T): this {
     this.components.set(cls, instance);
     return this;
   }

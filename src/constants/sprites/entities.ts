@@ -6,3 +6,4 @@ export const Direction = {
 } as const;
 
 export type DirectionType = typeof Direction[keyof typeof Direction];
+
