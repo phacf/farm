@@ -1,6 +1,8 @@
 import { createPlayerEntity } from "@ecs/character/index"
 import { CharacterDrawSystem } from "@ecs/character/systems/drawSystem"
 import { InputSystem } from "@ecs/character/systems/inputSystem"
+import { inventoryDrawSystem } from "@ecs/character/systems/inventoryDrawSystem"
+import { InventoryUpdateSystem } from "@ecs/character/systems/inventoryUpdateSystem"
 import { CharacterMovementSystem } from "@ecs/character/systems/movementSystem"
 import { CharacterTileInteractionSystem } from "@ecs/character/systems/tileInteractionSystem"
 import { CharacterTimerSystem } from "@ecs/character/systems/timerSystem"
@@ -30,7 +32,7 @@ export class Game {
                 this.updateInGame();
                 break;
             case "openInventory":
-                // lógica para inventory
+                InventoryUpdateSystem(this.player, this.input)
                 break;
             case "start":
                 // lógica para start
@@ -72,5 +74,6 @@ export class Game {
         map()
         MapDrawSystem(this.player)
         CharacterDrawSystem(this.player)
+        inventoryDrawSystem(this.player)
     }
 }

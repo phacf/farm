@@ -3,7 +3,7 @@
 // ░░ Básico do sistema ░░
 declare function cls(color?: number): void;
 declare function print(
-  text: string,
+  text: string | number,
   x?: number,
   y?: number,
   color?: number,

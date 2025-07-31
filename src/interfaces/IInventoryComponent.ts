@@ -7,6 +7,7 @@ export interface IInventoryComponent {
     water: number;
     gold: number;
     select: IPositionComponent;
+    size: number;
 }
 
 export type ItemType = 'hoe'

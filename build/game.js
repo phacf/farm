@@ -29,12 +29,61 @@ class GameStateComponent {
     this.state = state;
   }
 }
+const soil = 0;
+const grass = 1;
+const dirt = 17;
+const seed = 18;
+const watered = 19;
+const cropsMap = {
+  beet: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 82
+  },
+  carrot: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 34
+  },
+  corn: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 114
+  },
+  grape: {
+    seed,
+    watered,
+    plant: 49,
+    grown: 66
+  },
+  pupkin: {
+    seed,
+    watered,
+    plant: 33,
+    grown: 98
+  },
+  tomato: {
+    seed,
+    watered,
+    plant: 49,
+    grown: 50
+  }
+};
+const waterCan = {
+  label: "water can",
+  type: "can",
+  ItemSprite: 261
+};
 class InventoryComponent {
-  constructor(gold = 0, water = 3, itens = []) {
-    this.select = { x: 1, y: 1 };
+  constructor(gold = 0, water = 3, itens = [waterCan], size = 10) {
+    this.select = { x: 0, y: 0 };
     this.gold = gold;
     this.water = water;
     this.itens = itens;
+    this.size = size;
   }
   equip(item) {
     this.equiped = item;
@@ -43,7 +92,7 @@ class InventoryComponent {
     this.equiped = void 0;
   }
   add(item) {
-    if (this.itens.length === 10) return;
+    if (this.itens.length === this.size) return;
     this.itens.push(item);
   }
 }
@@ -137,6 +186,59 @@ function InputSystem(entity, input) {
     gameState.state = gameState.state === "inGame" ? "openInventory" : "inGame";
   }
 }
+function inventoryDrawSystem(entity) {
+  const inventory = entity.get(InventoryComponent);
+  const gameState = entity.get(GameStateComponent);
+  if (!inventory || !gameState) return;
+  dWater(inventory.water);
+  dEquip(inventory.equiped, inventory.gold);
+  if (gameState.state !== "openInventory") return;
+  rect(1 * 8, 1 * 8, inventory.size * 8 + 2, 1 * 8 + 2, 0);
+  const x = (inventory.select.x + 1) * 8;
+  const y = (inventory.select.y + 1) * 8;
+  spr(263, x + 1, y + 1, 0);
+  for (let i = 0; i < inventory.size; i++) {
+    const item = inventory.itens[i];
+    item && spr(item.ItemSprite, i + 1 + 1 * 8, 1 + 1 * 8, 0);
+  }
+}
+function dEquip(equip, money) {
+  rect(27 * 8, 0, 8, 8, 0);
+  equip && spr(equip.ItemSprite, 27 * 8, 0, 0);
+  rect(25 * 8, 0, 8, 8, 0);
+  spr(277, 25 * 8, 0);
+  print(money, 26 * 8 + 1, 1, 1, 0);
+}
+function dWater(water) {
+  spr(259, 29 * 8, 0, 0);
+  let wy = 1;
+  if (water) {
+    for (let i = 0; i < water; i++) {
+      spr(260, 29 * 8, wy * 8, 0);
+      wy++;
+    }
+  }
+}
+function InventoryUpdateSystem(entity, input) {
+  const inventory = entity.get(InventoryComponent);
+  if (!inventory) return;
+  if (input.pressRight()) {
+    inventory.select.x++;
+  } else if (input.pressLeft()) {
+    inventory.select.x--;
+  }
+  if (inventory.select.x >= inventory.size) {
+    inventory.select.x = 0;
+  } else if (inventory.select.x < 0) {
+    inventory.select.x = inventory.size - 1;
+  }
+  if (input.pressA()) {
+    const selectedItem = inventory.itens[inventory.select.x];
+    if (selectedItem) {
+      inventory.equip(selectedItem);
+    }
+  }
+}
 function CharacterMovementSystem(entity, input) {
   const vel = entity.get(VelocityComponent);
   const pos = entity.get(PositionComponent);
@@ -166,49 +268,6 @@ function onTile(px, py) {
 function changeTile(spriteId, x, y) {
   mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId);
 }
-const soil = 0;
-const grass = 1;
-const dirt = 17;
-const seed = 18;
-const watered = 19;
-const cropsMap = {
-  beet: {
-    seed,
-    watered,
-    plant: 33,
-    grown: 82
-  },
-  carrot: {
-    seed,
-    watered,
-    plant: 33,
-    grown: 34
-  },
-  corn: {
-    seed,
-    watered,
-    plant: 33,
-    grown: 114
-  },
-  grape: {
-    seed,
-    watered,
-    plant: 49,
-    grown: 66
-  },
-  pupkin: {
-    seed,
-    watered,
-    plant: 33,
-    grown: 98
-  },
-  tomato: {
-    seed,
-    watered,
-    plant: 49,
-    grown: 50
-  }
-};
 function dirtActions(x, y, tileId) {
   if (tileId === soil || tileId === grass) changeTile(dirt, x, y);
 }
@@ -336,6 +395,9 @@ class Game {
       case "inGame":
         this.updateInGame();
         break;
+      case "openInventory":
+        InventoryUpdateSystem(this.player, this.input);
+        break;
     }
   }
   // draw() {
@@ -366,6 +428,7 @@ class Game {
     map();
     MapDrawSystem(this.player);
     CharacterDrawSystem(this.player);
+    inventoryDrawSystem(this.player);
   }
 }
 const game = new Game();
