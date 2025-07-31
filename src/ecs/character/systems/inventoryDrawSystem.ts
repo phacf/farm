@@ -12,7 +12,6 @@ export function inventoryDrawSystem(entity: Entity) {
     dWater(inventory.water)
     dEquip(inventory.equiped, inventory.gold)
 
-
     if (gameState.state !== "openInventory") return
     rect(1 * 8, 1 * 8, (inventory.size * 8) + 2, (1 * 8) + 2, 0)// draw 
     const x = (inventory.select.x + 1) * 8
@@ -22,8 +21,8 @@ export function inventoryDrawSystem(entity: Entity) {
 
     for (let i = 0; i < inventory.size; i++) {
         const item = inventory.itens[i]
-
-        item && spr(item.ItemSprite, (i + 1) + 1 * 8, 1 + 1 * 8, 0)//item
+        const x = (i + 1) * 8
+        item && spr(item.ItemSprite, x + 1, 1 + 1 * 8, 0)//item
 
 
     }
@@ -32,7 +31,7 @@ export function inventoryDrawSystem(entity: Entity) {
 
 function dEquip(equip?: IInventoryItemType, money: number) {
     //equiped
-    rect(27 * 8, 0, 8, 8, 0)
+    rect((27 * 8) + 3, 0, 8, 8, 0)
     equip && spr(equip.ItemSprite, 27 * 8, 0, 0)
     //money
     rect(25 * 8, 0, 8, 8, 0)

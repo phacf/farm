@@ -1,4 +1,4 @@
-import { dirt, seed } from "@constants/map/map";
+import { dirt, seed } from "@constants/itens/itens";
 import { changeTile } from "utils/screen";
 
 export function seedActions(x:number,y:number, tileId:number){ //entity to take equiped

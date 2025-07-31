@@ -1,4 +1,3 @@
-import { CropMap } from "@interfaces/IcropComponent";
 
 export const MapConfig = {
     water: [4, 5, 6],

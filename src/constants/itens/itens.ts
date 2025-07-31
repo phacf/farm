@@ -2,7 +2,7 @@ import { CropMap } from "@interfaces/IcropComponent";
 import { IInventoryItemType } from "@interfaces/IInventoryComponent";
 
 export const soil = 0;
-export const grass = 1;
+export const grass = 2;
 export const dirt = 17;
 export const seed = 18;
 export const watered = 19;
