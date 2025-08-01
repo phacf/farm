@@ -34,8 +34,18 @@ export function CharacterTileInteractionSystem(entity: Entity, input: InputContr
             crop.add(toCrop(inventory.equiped, pos.x, pos.y, t.time))
         }
         if (inventory.equiped?.type === "can") {
-            inventory.water && waterActions(pos.x, pos.y, tile)
-            inventory.water--
+            const plant = crop.get(pos.x, pos.y)
+
+            if (inventory.water > 0) {
+                waterActions(pos.x, pos.y, tile)
+                if (plant) {
+                    plant.stage = "watered"
+                    crop.remove(plant.location.x, plant.location.y)
+                    crop.add(plant)
+                }
+                inventory.water--
+            }
+
             if (MapConfig.water.includes(getTileAim(pos.x, pos.y, size.width, size.height, d.direction))) inventory.water = 3
         }
     }
@@ -43,7 +53,10 @@ export function CharacterTileInteractionSystem(entity: Entity, input: InputContr
 
 function toCrop(seed: ISeedItem, x: number, y: number, time: number): IcropTile {
     return {
-        location: { x, y },
+        location: {
+            x,
+            y
+        },
         seedType: seed.seedType,
         stage: seed.stage,
         stageTime: seed.stageTime,

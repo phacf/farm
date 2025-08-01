@@ -11,7 +11,7 @@ declare function print(
   scale?: number,
   smallfont?: boolean
 ): number;
-declare function trace(msg: string, color?: number): void;
+declare function trace(msg: string | number, color?: number): void;
 declare function time(): number;
 declare function tstamp(): number;
 

@@ -49,11 +49,21 @@ class CropsComponent {
   constructor(crops = []) {
     this.crops = crops;
   }
+  toTileCoords(x, y) {
+    return {
+      x: Math.floor((x + 4) / 8),
+      y: Math.floor((y + 4) / 8)
+    };
+  }
   add(crop) {
+    const { x, y } = this.toTileCoords(crop.location.x, crop.location.y);
+    crop.location.x = x;
+    crop.location.y = y;
     this.crops.push(crop);
   }
   remove(x, y) {
-    this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
+    const tile = this.toTileCoords(x, y);
+    this.crops = this.crops.filter((c) => c.location.x !== tile.x || c.location.y !== tile.y);
   }
   get(x, y) {
     return this.crops.find((c) => c.location.x === x && c.location.y === y);
@@ -427,15 +437,26 @@ function CharacterTileInteractionSystem(entity, input) {
       crop.add(toCrop(inventory.equiped, pos.x, pos.y, t.time));
     }
     if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") {
-      inventory.water && waterActions(pos.x, pos.y, tile);
-      inventory.water--;
+      const plant = crop.get(pos.x, pos.y);
+      if (inventory.water > 0) {
+        waterActions(pos.x, pos.y, tile);
+        if (plant) {
+          plant.stage = "watered";
+          crop.remove(plant.location.x, plant.location.y);
+          crop.add(plant);
+        }
+        inventory.water--;
+      }
       if (MapConfig.water.includes(getTileAim(pos.x, pos.y, size.width, size.height, d.direction))) inventory.water = 3;
     }
   }
 }
 function toCrop(seed2, x, y, time) {
   return {
-    location: { x, y },
+    location: {
+      x,
+      y
+    },
     seedType: seed2.seedType,
     stage: seed2.stage,
     stageTime: seed2.stageTime,
@@ -454,12 +475,13 @@ const MapScreen = {
 function MapDrawSystem(entity) {
   const crops = entity.get(CropsComponent);
   if (!crops) return;
-  for (let y = 0; y <= MapScreen.h; y++) {
-    for (let x = 0; x <= MapScreen.w; x++) {
+  for (let y = 0; y <= MapScreen.h; y += 8) {
+    for (let x = 0; x <= MapScreen.w; x += 8) {
       const crop = crops.get(x, y);
       if (!crop) continue;
       const plant = cropsMap[crop.seedType];
       mset(x, y, plant[crop.stage]);
+      print(crop.stage);
     }
   }
 }
@@ -467,7 +489,7 @@ function MapUpdateSystem(entity) {
   const field = entity.get(CropsComponent);
   if (!field) return;
   for (let crop of field.crops) {
-    if (crop.time > 0) {
+    if (crop.time >= 0) {
       crop.time--;
     } else if (crop.stage === "plant") {
       crop.stage = "grown";
