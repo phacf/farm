@@ -62,7 +62,7 @@ export const waterCan: IInventoryItemType = {
 
 export const carrotSeed: IInventoryItemType = {
     type: "seed",
-    ItemSprite: 0,
+    ItemSprite: 265,
     label: 'carrot seed',
     seedType: "carrot",
     stageTime: 600,
@@ -72,7 +72,7 @@ export const carrotSeed: IInventoryItemType = {
 
 export const beetSeed: IInventoryItemType = {
     type: "seed",
-    ItemSprite: 0,
+    ItemSprite: 267,
     label: 'beet seed',
     seedType: "beet",
     stageTime: 1000,
@@ -83,7 +83,7 @@ export const beetSeed: IInventoryItemType = {
 
 export const cornSeed: IInventoryItemType = {
     type: "seed",
-    ItemSprite: 0,
+    ItemSprite: 269,
     label: 'corn seed',
     seedType: "corn",
     stageTime: 1200,
@@ -94,7 +94,7 @@ export const cornSeed: IInventoryItemType = {
 
 export const tomatoSeed: IInventoryItemType = {
     type: "seed",
-    ItemSprite: 0,
+    ItemSprite: 264,
     label: 'tomato seed',
     seedType: "tomato",
     stageTime: 600,
@@ -105,7 +105,7 @@ export const tomatoSeed: IInventoryItemType = {
 
 export const pupkinSeed: IInventoryItemType = {
     type: "seed",
-    ItemSprite: 0,
+    ItemSprite: 268,
     label: 'pupkin seed',
     seedType: "pupkin",
     stageTime: 1500,

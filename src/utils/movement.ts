@@ -1,3 +1,5 @@
+import { DirectionType } from "@constants/sprites/entities"
+
 /**
  * movimentos suaves
  * @param a ponto de partida
@@ -29,3 +31,32 @@ export function goToTile(tilex: number, tiley: number) {
     this.x += dx * this.speed
     this.y += dy * this.speed
 */
+
+export function getTileAim(x: number, y: number, w: number, h: number, dir: DirectionType) {
+  let tile = 0
+  if (dir === "up") {//up
+    tile = mget(
+      Math.floor((x + w / 2) / 8),
+      Math.floor((y - h / 2) / 8)
+    )
+  }
+  else if (dir === "down") {//down
+    tile = mget(
+      Math.floor((x + w / 2) / 8),
+      Math.floor((y + h * 1.5) / 8)
+    )
+  }
+  else if (dir === "left") {//left
+    tile = mget(
+      Math.floor((x - w / 2) / 8),
+      Math.floor((y + h / 2) / 8)
+    )
+  }
+  else if (dir === "right") {//right
+    tile = mget(
+      Math.floor((x + w * 1.5) / 8),
+      Math.floor((y + h / 2) / 8)
+    )
+  }
+  return tile
+}

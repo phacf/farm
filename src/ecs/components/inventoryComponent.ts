@@ -1,4 +1,4 @@
-import { waterCan, hoe } from "@constants/itens/itens";
+import { waterCan, hoe, carrotSeed } from "@constants/itens/itens";
 import { IInventoryComponent, IInventoryItemType } from "@interfaces/IInventoryComponent";
 import { IPositionComponent } from "@interfaces/IPositionComponent";
 import { IdController } from "controllers/idController";
@@ -21,10 +21,13 @@ export class InventoryComponent implements IInventoryComponent {
 
         this.add(hoe)
         this.add(waterCan)
+        this.add(carrotSeed)
     }
 
     equip(item: IInventoryItemType) {
+        if(this.equiped)this.add(this.equiped)
         this.equiped = item
+        this.remove(item)
     }
 
     unequip() {
@@ -33,8 +36,16 @@ export class InventoryComponent implements IInventoryComponent {
 
     add(item: IInventoryItemType) {
         if (this.itens.length === this.size) return
-        this.itens.push({ ...item, id: this.idController.getNewId() })
+
+        if (!item.id) {
+            this.itens.push({ ...item, id: this.idController.getNewId() })
+            return
+        }
+        this.itens.push(item)
     }
 
+    remove(item: IInventoryItemType){
+        this.itens = this.itens.filter(i => i.id !== item.id)
+    }
 
 }

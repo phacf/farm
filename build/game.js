@@ -59,6 +59,11 @@ class CropsComponent {
     return this.crops.find((c) => c.location.x === x && c.location.y === y);
   }
 }
+class DirectionComponent {
+  constructor(direction = "down") {
+    this.direction = direction;
+  }
+}
 class GameStateComponent {
   constructor(state) {
     this.state = state;
@@ -69,6 +74,7 @@ const grass = 2;
 const dirt = 17;
 const seed = 18;
 const watered = 19;
+const amount = 9;
 const cropsMap = {
   beet: {
     seed,
@@ -117,6 +123,15 @@ const waterCan = {
   type: "can",
   ItemSprite: 261
 };
+const carrotSeed = {
+  type: "seed",
+  ItemSprite: 265,
+  label: "carrot seed",
+  seedType: "carrot",
+  stageTime: 600,
+  stage: "seed",
+  amount
+};
 class IdController {
   constructor() {
     this.ids = [];
@@ -145,16 +160,26 @@ class InventoryComponent {
     this.size = size;
     this.add(hoe);
     this.add(waterCan);
+    this.add(carrotSeed);
   }
   equip(item) {
+    if (this.equiped) this.add(this.equiped);
     this.equiped = item;
+    this.remove(item);
   }
   unequip() {
     this.equiped = void 0;
   }
   add(item) {
     if (this.itens.length === this.size) return;
-    this.itens.push(__spreadProps(__spreadValues({}, item), { id: this.idController.getNewId() }));
+    if (!item.id) {
+      this.itens.push(__spreadProps(__spreadValues({}, item), { id: this.idController.getNewId() }));
+      return;
+    }
+    this.itens.push(item);
+  }
+  remove(item) {
+    this.itens = this.itens.filter((i) => i.id !== item.id);
   }
 }
 class PositionComponent {
@@ -227,7 +252,7 @@ function createPlayerEntity() {
       ...wall,
       ...water
     ]
-  });
+  }).add(DirectionComponent, { direction: "down" });
   return entity;
 }
 function CharacterDrawSystem(entity) {
@@ -265,7 +290,7 @@ function inventoryDrawSystem(entity) {
 }
 function dEquip(equip, money) {
   rect(27 * 8 + 3, 0, 8, 8, 0);
-  equip && spr(equip.ItemSprite, 27 * 8, 0, 0);
+  equip && spr(equip.ItemSprite, 27 * 8 + 3, 0, 0);
   rect(25 * 8, 0, 8, 8, 0);
   spr(277, 25 * 8, 0);
   print(money, 26 * 8 + 1, 1, 1, 0);
@@ -325,20 +350,25 @@ function CharacterMovementSystem(entity, input) {
   const pos = entity.get(PositionComponent);
   const col = entity.get(TileCollisionComponent);
   const size = entity.get(SizeComponent);
-  if (!vel || !pos || !col || !size) return;
+  const dir = entity.get(DirectionComponent);
+  if (!vel || !pos || !col || !size || !dir) return;
   vel.dx = 0;
   vel.dy = 0;
   if (input.isUp()) {
     vel.dy = -1;
+    dir.direction = "up";
   }
   if (input.isDown()) {
     vel.dy = 1;
+    dir.direction = "down";
   }
   if (input.isLeft()) {
     vel.dx = -1;
+    dir.direction = "left";
   }
   if (input.isRight()) {
     vel.dx = 1;
+    dir.direction = "right";
   }
   pos.x += vel.dx * vel.speed;
   if (isColiding(pos.x, pos.y, size.width - 2, size.height - 2, col.tiles)) pos.x -= vel.dx * vel.speed;
@@ -354,17 +384,63 @@ function waterActions(x, y, tileId) {
 function seedActions(x, y, tileId) {
   if (tileId === dirt) changeTile(seed, x, y);
 }
+function getTileAim(x, y, w, h, dir) {
+  let tile = 0;
+  if (dir === "up") {
+    tile = mget(
+      Math.floor((x + w / 2) / 8),
+      Math.floor((y - h / 2) / 8)
+    );
+  } else if (dir === "down") {
+    tile = mget(
+      Math.floor((x + w / 2) / 8),
+      Math.floor((y + h * 1.5) / 8)
+    );
+  } else if (dir === "left") {
+    tile = mget(
+      Math.floor((x - w / 2) / 8),
+      Math.floor((y + h / 2) / 8)
+    );
+  } else if (dir === "right") {
+    tile = mget(
+      Math.floor((x + w * 1.5) / 8),
+      Math.floor((y + h / 2) / 8)
+    );
+  }
+  return tile;
+}
 function CharacterTileInteractionSystem(entity, input) {
   var _a, _b, _c;
   const pos = entity.get(PositionComponent);
   const inventory = entity.get(InventoryComponent);
-  if (!pos || !inventory) return;
+  const crop = entity.get(CropsComponent);
+  const t = entity.get(TimerComponent);
+  const size = entity.get(SizeComponent);
+  const d = entity.get(DirectionComponent);
+  if (!pos || !inventory || !crop || !t || !size || !d) return;
   if (input.pressA()) {
     const tile = onTile(pos.x, pos.y);
     if (((_a = inventory.equiped) == null ? void 0 : _a.type) === "hoe") dirtActions(pos.x, pos.y, tile);
-    if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed") seedActions(pos.x, pos.y, tile);
-    if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") waterActions(pos.x, pos.y, tile);
+    if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed") {
+      seedActions(pos.x, pos.y, tile);
+      inventory.equiped.amount--;
+      crop.add(toCrop(inventory.equiped, pos.x, pos.y, t.time));
+    }
+    if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") {
+      inventory.water && waterActions(pos.x, pos.y, tile);
+      inventory.water--;
+      if (MapConfig.water.includes(getTileAim(pos.x, pos.y, size.width, size.height, d.direction))) inventory.water = 3;
+    }
   }
+}
+function toCrop(seed2, x, y, time) {
+  return {
+    location: { x, y },
+    seedType: seed2.seedType,
+    stage: seed2.stage,
+    stageTime: seed2.stageTime,
+    time
+  };
 }
 function CharacterTimerSystem(entity) {
   const t = entity.get(TimerComponent);

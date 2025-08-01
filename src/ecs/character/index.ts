@@ -1,6 +1,7 @@
 import { MapConfig } from "@constants/map/map";
 import { TileCollisionComponent } from "@ecs/components/colisionComponent";
 import { CropsComponent } from "@ecs/components/cropComponent";
+import { DirectionComponent } from "@ecs/components/directionComponent";
 import { GameStateComponent } from "@ecs/components/gameStateComponent";
 import { InventoryComponent } from "@ecs/components/inventoryComponent";
 import { PositionComponent } from "@ecs/components/positionComponent";
@@ -33,6 +34,7 @@ export function createPlayerEntity(): Entity {
                 ...water
             ]
         })
+        .add(DirectionComponent, { direction: 'down' })
 
     return entity
 }

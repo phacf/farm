@@ -1,4 +1,5 @@
 import { TileCollisionComponent } from "@ecs/components/colisionComponent";
+import { DirectionComponent } from "@ecs/components/directionComponent";
 import { PositionComponent } from "@ecs/components/positionComponent";
 import { SizeComponent } from "@ecs/components/sizeComponent";
 import { VelocityComponent } from "@ecs/components/velocityComponent";
@@ -11,22 +12,31 @@ export function CharacterMovementSystem(entity: Entity, input: InputController) 
     const pos = entity.get(PositionComponent)
     const col = entity.get(TileCollisionComponent)
     const size = entity.get(SizeComponent)
-    if (!vel || !pos || !col || !size) return
+    const dir = entity.get(DirectionComponent)
+
+    if (!vel || !pos || !col || !size || !dir) return
 
     vel.dx = 0;
     vel.dy = 0;
 
     if (input.isUp()) {
         vel.dy = -1
+        dir.direction = 'up'
     }
     if (input.isDown()) {
         vel.dy = 1
+        dir.direction = 'down'
+
     }
     if (input.isLeft()) {
         vel.dx = -1
+        dir.direction = 'left'
+
     }
     if (input.isRight()) {
         vel.dx = 1
+        dir.direction = 'right'
+
     }
 
     pos.x += vel.dx * vel.speed

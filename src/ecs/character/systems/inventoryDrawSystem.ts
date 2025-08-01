@@ -32,7 +32,7 @@ export function inventoryDrawSystem(entity: Entity) {
 function dEquip(equip?: IInventoryItemType, money: number) {
     //equiped
     rect((27 * 8) + 3, 0, 8, 8, 0)
-    equip && spr(equip.ItemSprite, 27 * 8, 0, 0)
+    equip && spr(equip.ItemSprite, (27 * 8)+3, 0, 0)
     //money
     rect(25 * 8, 0, 8, 8, 0)
     spr(277, 25 * 8, 0)
