@@ -16,17 +16,16 @@ export class CropsComponent implements IcropComponent {
 
     add(crop: IcropTile): void {
         const { x, y } = this.toTileCoords(crop.location.x, crop.location.y);
-        crop.location.x = x;
-        crop.location.y = y;
-        this.crops.push(crop);
+        const location = { x, y }
+        this.crops.push({ ...crop, location });
     }
 
     remove(x: number, y: number): void {
-        const tile = this.toTileCoords(x, y);
-        this.crops = this.crops.filter((c) => c.location.x !== tile.x || c.location.y !== tile.y);
+        this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
     }
 
     get(x: number, y: number): IcropTile | undefined {
-        return this.crops.find(c => c.location.x === x && c.location.y === y)
+        const { x: tilex, y: tiley } = this.toTileCoords(x, y)
+        return this.crops.find(c => c.location.x === tilex && c.location.y === tiley)
     }
 }

@@ -43,26 +43,6 @@ export class Game {
         }
     }
 
-    // draw() {
-    //     const gameState = this.player.get(GameStateComponent);
-    //     if (!gameState) return;
-
-    //     switch (gameState.state) {
-    //         case "inGame":
-    //             this.drawIngame();
-    //             break;
-    //         case "openInventory":
-    //             // lógica para inventory
-    //             break;
-    //         case "start":
-    //             // lógica para start
-    //             break;
-    //         case "gameOver":
-    //             // lógica para game over
-    //             break;
-    //     }
-    // }
-
     updateInGame() {
         CharacterMovementSystem(this.player, this.input)
         CharacterTimerSystem(this.player)

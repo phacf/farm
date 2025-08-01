@@ -57,16 +57,17 @@ class CropsComponent {
   }
   add(crop) {
     const { x, y } = this.toTileCoords(crop.location.x, crop.location.y);
-    crop.location.x = x;
-    crop.location.y = y;
-    this.crops.push(crop);
+    const location = { x, y };
+    this.crops.push(__spreadProps(__spreadValues({}, crop), { location }));
   }
   remove(x, y) {
-    const tile = this.toTileCoords(x, y);
-    this.crops = this.crops.filter((c) => c.location.x !== tile.x || c.location.y !== tile.y);
+    this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
   }
   get(x, y) {
-    return this.crops.find((c) => c.location.x === x && c.location.y === y);
+    const { x: tilex, y: tiley } = this.toTileCoords(x, y);
+    trace(tilex);
+    trace(tiley);
+    return this.crops.find((c) => c.location.x === tilex && c.location.y === tiley);
   }
 }
 class DirectionComponent {
@@ -138,7 +139,7 @@ const carrotSeed = {
   ItemSprite: 265,
   label: "carrot seed",
   seedType: "carrot",
-  stageTime: 600,
+  stageTime: 30,
   stage: "seed",
   amount
 };
@@ -388,12 +389,6 @@ function CharacterMovementSystem(entity, input) {
 function dirtActions(x, y, tileId) {
   if (tileId === soil || tileId === grass) changeTile(dirt, x, y);
 }
-function waterActions(x, y, tileId) {
-  if (tileId === seed) changeTile(watered, x, y);
-}
-function seedActions(x, y, tileId) {
-  if (tileId === dirt) changeTile(seed, x, y);
-}
 function getTileAim(x, y, w, h, dir) {
   let tile = 0;
   if (dir === "up") {
@@ -424,26 +419,23 @@ function CharacterTileInteractionSystem(entity, input) {
   const pos = entity.get(PositionComponent);
   const inventory = entity.get(InventoryComponent);
   const crop = entity.get(CropsComponent);
-  const t = entity.get(TimerComponent);
   const size = entity.get(SizeComponent);
   const d = entity.get(DirectionComponent);
-  if (!pos || !inventory || !crop || !t || !size || !d) return;
+  if (!pos || !inventory || !crop || !size || !d) return;
   if (input.pressA()) {
     const tile = onTile(pos.x, pos.y);
     if (((_a = inventory.equiped) == null ? void 0 : _a.type) === "hoe") dirtActions(pos.x, pos.y, tile);
     if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed") {
-      seedActions(pos.x, pos.y, tile);
-      inventory.equiped.amount--;
-      crop.add(toCrop(inventory.equiped, pos.x, pos.y, t.time));
+      if (tile === dirt) {
+        crop.add(toCrop(inventory.equiped, pos.x, pos.y));
+        inventory.equiped.amount--;
+      }
     }
     if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") {
       const plant = crop.get(pos.x, pos.y);
-      if (inventory.water > 0) {
-        waterActions(pos.x, pos.y, tile);
+      if (inventory.water > 0 && (plant == null ? void 0 : plant.stage) === "seed") {
         if (plant) {
           plant.stage = "watered";
-          crop.remove(plant.location.x, plant.location.y);
-          crop.add(plant);
         }
         inventory.water--;
       }
@@ -451,7 +443,7 @@ function CharacterTileInteractionSystem(entity, input) {
     }
   }
 }
-function toCrop(seed2, x, y, time) {
+function toCrop(seed2, x, y) {
   return {
     location: {
       x,
@@ -460,7 +452,7 @@ function toCrop(seed2, x, y, time) {
     seedType: seed2.seedType,
     stage: seed2.stage,
     stageTime: seed2.stageTime,
-    time
+    time: seed2.stageTime
   };
 }
 function CharacterTimerSystem(entity) {
@@ -475,13 +467,12 @@ const MapScreen = {
 function MapDrawSystem(entity) {
   const crops = entity.get(CropsComponent);
   if (!crops) return;
-  for (let y = 0; y <= MapScreen.h; y += 8) {
-    for (let x = 0; x <= MapScreen.w; x += 8) {
-      const crop = crops.get(x, y);
+  for (let y = 0; y <= MapScreen.h; y++) {
+    for (let x = 0; x <= MapScreen.w; x++) {
+      const crop = crops.get(x * 8, y * 8);
       if (!crop) continue;
       const plant = cropsMap[crop.seedType];
-      mset(x, y, plant[crop.stage]);
-      print(crop.stage);
+      mset(crop.location.x, crop.location.y, plant[crop.stage]);
     }
   }
 }
@@ -489,7 +480,7 @@ function MapUpdateSystem(entity) {
   const field = entity.get(CropsComponent);
   if (!field) return;
   for (let crop of field.crops) {
-    if (crop.time >= 0) {
+    if (crop.time > 0) {
       crop.time--;
     } else if (crop.stage === "plant") {
       crop.stage = "grown";
@@ -581,24 +572,6 @@ class Game {
         break;
     }
   }
-  // draw() {
-  //     const gameState = this.player.get(GameStateComponent);
-  //     if (!gameState) return;
-  //     switch (gameState.state) {
-  //         case "inGame":
-  //             this.drawIngame();
-  //             break;
-  //         case "openInventory":
-  //             // lógica para inventory
-  //             break;
-  //         case "start":
-  //             // lógica para start
-  //             break;
-  //         case "gameOver":
-  //             // lógica para game over
-  //             break;
-  //     }
-  // }
   updateInGame() {
     CharacterMovementSystem(this.player, this.input);
     CharacterTimerSystem(this.player);

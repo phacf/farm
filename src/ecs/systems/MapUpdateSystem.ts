@@ -1,11 +1,12 @@
-import { CropsComponent } from "@ecs/components/cropComponent";
-import { Entity } from "@ecs/models/entity";
+import { CropsComponent } from "@ecs/components/cropComponent"
+import { Entity } from "@ecs/models/entity"
+
 
 export function MapUpdateSystem(entity: Entity){
     const field = entity.get(CropsComponent)
     if(!field) return 
     for(let crop of field.crops){
-        if(crop.time >= 0){
+        if(crop.time > 0){
             crop.time --
         }
 

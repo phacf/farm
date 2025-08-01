@@ -4,22 +4,18 @@ import { Entity } from "@ecs/models/entity";
 import { MapScreen } from "@tic/map/map";
 
 export function MapDrawSystem(entity: Entity) {
-    const crops = entity.get(CropsComponent)
-    if (!crops) return
+    const crops = entity.get(CropsComponent);
+    if (!crops) return;
 
-    for (let y = 0; y <= MapScreen.h; y+=8) {
-        for (let x = 0; x <= MapScreen.w; x+=8) {
-            const crop = crops.get(x, y);
-            if (!crop) continue
+    for (let y = 0; y <= MapScreen.h; y++) {
+        for (let x = 0; x <= MapScreen.w; x++) {
 
-            const plant = cropsMap[crop.seedType]
-            mset(x, y, plant[crop.stage])
-            print(crop.stage)
+            const crop = crops.get(x * 8, y * 8);
+            if (!crop) continue;
 
+            const plant = cropsMap[crop.seedType];
+            mset(crop.location.x, crop.location.y, plant[crop.stage]);
         }
     }
 }
-
-
-
 
