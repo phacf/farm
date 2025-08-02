@@ -65,8 +65,6 @@ class CropsComponent {
   }
   get(x, y) {
     const { x: tilex, y: tiley } = this.toTileCoords(x, y);
-    trace(tilex);
-    trace(tiley);
     return this.crops.find((c) => c.location.x === tilex && c.location.y === tiley);
   }
 }
@@ -139,7 +137,7 @@ const carrotSeed = {
   ItemSprite: 265,
   label: "carrot seed",
   seedType: "carrot",
-  stageTime: 30,
+  stageTime: 600,
   stage: "seed",
   amount
 };
@@ -482,11 +480,11 @@ function MapUpdateSystem(entity) {
   for (let crop of field.crops) {
     if (crop.time > 0) {
       crop.time--;
-    } else if (crop.stage === "plant") {
-      crop.stage = "grown";
-    } else if (crop.stage === "watered") {
-      crop.stage = "plant";
+    } else {
       crop.time = crop.stageTime;
+      if (crop.stage === "grown") crop.time = 0;
+      if (crop.stage === "plant") crop.stage = "grown";
+      if (crop.stage === "watered") crop.stage = "plant";
     }
   }
 }
