@@ -37,7 +37,7 @@ const MapConfig = {
   //cocho
   WaterEmptyTrough: [59, 75],
   WaterFilledTrough: [60, 76],
-  commonSolids: [3, 15, 16, 29, 30, 31, 32, 44, 45, 46, 47, 48, 49, 50, 64, 66, 80, 96, 98, 110, 111, 112, 114, 126, 127, 128, 143, 144, 140, 141, 142, 143, 144, 157, 160, 158, 159]
+  commonSolids: [3, 15, 16, 29, 30, 31, 32, 44, 45, 46, 47, 48, 64, 80, 96, 110, 111, 112, 126, 127, 128, 143, 144, 140, 141, 142, 143, 144, 157, 160, 158, 159]
   //houses trees, rocks
 };
 class TileCollisionComponent {
@@ -61,7 +61,8 @@ class CropsComponent {
     this.crops.push(__spreadProps(__spreadValues({}, crop), { location }));
   }
   remove(x, y) {
-    this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
+    const { x: tilex, y: tiley } = this.toTileCoords(x, y);
+    this.crops = this.crops.filter((c) => c.location.x !== tilex && c.location.y !== tiley);
   }
   get(x, y) {
     const { x: tilex, y: tiley } = this.toTileCoords(x, y);
@@ -141,6 +142,43 @@ const carrotSeed = {
   stage: "seed",
   amount
 };
+const carrot = {
+  type: "food",
+  ItemSprite: 258,
+  label: "carrot",
+  price: 1
+};
+const beet = {
+  type: "food",
+  ItemSprite: 290,
+  label: "beet",
+  price: 1
+};
+const corn = {
+  type: "food",
+  ItemSprite: 338,
+  label: "corn",
+  price: 1
+};
+const grape = {
+  type: "food",
+  ItemSprite: 306,
+  label: "grape",
+  price: 1
+};
+const pupkin = {
+  type: "food",
+  ItemSprite: 322,
+  label: "pupkin",
+  price: 1
+};
+const tomato = {
+  type: "food",
+  ItemSprite: 274,
+  label: "tomato",
+  price: 1
+};
+const foods = [carrot, tomato, pupkin, grape, corn, beet];
 class IdController {
   constructor() {
     this.ids = [];
@@ -382,7 +420,7 @@ function CharacterMovementSystem(entity, input) {
   pos.x += vel.dx * vel.speed;
   if (isColiding(pos.x, pos.y, size.width - 2, size.height - 2, col.tiles)) pos.x -= vel.dx * vel.speed;
   pos.y += vel.dy * vel.speed;
-  if (isColiding(pos.x, pos.y, size.width - 2, size.height - 2, col.tiles)) pos.y -= vel.dy * vel.speed;
+  if (isColiding(pos.x, pos.y, size.width - 2, size.height - 1, col.tiles)) pos.y -= vel.dy * vel.speed;
 }
 function dirtActions(x, y, tileId) {
   if (tileId === soil || tileId === grass) changeTile(dirt, x, y);
@@ -422,15 +460,16 @@ function CharacterTileInteractionSystem(entity, input) {
   if (!pos || !inventory || !crop || !size || !d) return;
   if (input.pressA()) {
     const tile = onTile(pos.x, pos.y);
+    const plant = crop.get(pos.x, pos.y);
     if (((_a = inventory.equiped) == null ? void 0 : _a.type) === "hoe") dirtActions(pos.x, pos.y, tile);
-    if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed") {
+    if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed" && inventory.equiped.amount > 0) {
       if (tile === dirt) {
         crop.add(toCrop(inventory.equiped, pos.x, pos.y));
         inventory.equiped.amount--;
       }
+      if (inventory.equiped.amount === 0) inventory.equiped = void 0;
     }
     if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") {
-      const plant = crop.get(pos.x, pos.y);
       if (inventory.water > 0 && (plant == null ? void 0 : plant.stage) === "seed") {
         if (plant) {
           plant.stage = "watered";
@@ -439,14 +478,20 @@ function CharacterTileInteractionSystem(entity, input) {
       }
       if (MapConfig.water.includes(getTileAim(pos.x, pos.y, size.width, size.height, d.direction))) inventory.water = 3;
     }
+    if (plant && plant.stage === "grown") {
+      inventory.add(grownToFood(plant));
+      crop.remove(pos.x, pos.y);
+      changeTile(0, pos.x, pos.y);
+    }
   }
+}
+function grownToFood(crop) {
+  const food = foods.find((f) => f.label === crop.seedType);
+  if (food) return __spreadValues({}, food);
 }
 function toCrop(seed2, x, y) {
   return {
-    location: {
-      x,
-      y
-    },
+    location: { x, y },
     seedType: seed2.seedType,
     stage: seed2.stage,
     stageTime: seed2.stageTime,

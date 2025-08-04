@@ -42,6 +42,6 @@ export function CharacterMovementSystem(entity: Entity, input: InputController) 
     pos.x += vel.dx * vel.speed
     if (isColiding(pos.x, pos.y, size.width - 2, size.height - 2, col.tiles)) pos.x -= vel.dx * vel.speed
     pos.y += vel.dy * vel.speed
-    if (isColiding(pos.x, pos.y, size.width - 2, size.height - 2, col.tiles)) pos.y -= vel.dy * vel.speed
+    if (isColiding(pos.x, pos.y, size.width - 2, size.height - 1, col.tiles)) pos.y -= vel.dy * vel.speed
 
 }

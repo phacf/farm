@@ -13,6 +13,7 @@ export interface IInventoryComponent {
 export type ItemType = 'hoe'
     | 'can'
     | 'seed'
+    | 'food'
 
 export interface IInventoryItemBase {
     id?: number;
@@ -33,4 +34,10 @@ export interface IToolItem extends IInventoryItemBase {
     type: 'hoe' | 'can';
 }
 
-export type IInventoryItemType = IToolItem | ISeedItem;
+export interface IFoodItem extends IInventoryItemBase{
+    type: 'food',
+    price: number, 
+    label: SeedType
+}
+
+export type IInventoryItemType = IToolItem | ISeedItem | IFoodItem;

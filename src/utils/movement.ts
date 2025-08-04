@@ -60,3 +60,25 @@ export function getTileAim(x: number, y: number, w: number, h: number, dir: Dire
   }
   return tile
 }
+
+export function getAimpx(x: number, y: number, w: number, h: number, dir: DirectionType) {
+  let px = x + w / 2;
+  let py = y + h / 2;
+
+  if (dir === "up") py -= 8;
+  if (dir === "down") py += 8;
+  if (dir === "left") px -= 8;
+  if (dir === "right") px += 8;
+
+  return getTileCenter(px, py);
+}
+
+
+function getTileCenter(x: number, y: number) {
+  const tx = Math.floor(x / 8);
+  const ty = Math.floor(y / 8);
+  return {
+    x: tx * 8 + 4,
+    y: ty * 8 + 4
+  };
+}

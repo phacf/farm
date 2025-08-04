@@ -21,7 +21,8 @@ export class CropsComponent implements IcropComponent {
     }
 
     remove(x: number, y: number): void {
-        this.crops = this.crops.filter((c) => c.location.x !== x && c.location.y !== y);
+        const { x: tilex, y: tiley } = this.toTileCoords(x, y)
+        this.crops = this.crops.filter((c) => c.location.x !== tilex && c.location.y !== tiley);
     }
 
     get(x: number, y: number): IcropTile | undefined {
