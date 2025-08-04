@@ -82,3 +82,12 @@ function getTileCenter(x: number, y: number) {
     y: ty * 8 + 4
   };
 }
+
+// utils/movement.ts
+
+export function getTargetCoords(x: number, y: number, w: number, h: number, dir: DirectionType) {
+    const tx = x + (dir === "left" ? -8 : dir === "right" ? 8 : 0);
+    const ty = y + (dir === "up" ? -8 : dir === "down" ? 8 : 0);
+    const tile = getTileAim(x, y, w, h, dir);
+    return { tx, ty, tile };
+}

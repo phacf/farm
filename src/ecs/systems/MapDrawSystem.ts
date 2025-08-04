@@ -9,6 +9,7 @@ export function MapDrawSystem(entity: Entity) {
 
     for (let y = 0; y <= MapScreen.h; y++) {
         for (let x = 0; x <= MapScreen.w; x++) {
+            
 
             const crop = crops.get(x * 8, y * 8);
             if (!crop) continue;

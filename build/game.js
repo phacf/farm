@@ -378,11 +378,6 @@ function detectTile(px, py, set) {
   let tile = mget(cx, cy);
   return set.includes(tile);
 }
-function onTile(px, py) {
-  let cx = Math.floor((px + 4) / 8);
-  let cy = Math.floor((py + 4) / 8);
-  return mget(cx, cy);
-}
 function changeTile(spriteId, x, y) {
   mset(Math.floor((x + 4) / 8), Math.floor((y + 4) / 8), spriteId);
 }
@@ -450,6 +445,12 @@ function getTileAim(x, y, w, h, dir) {
   }
   return tile;
 }
+function getTargetCoords(x, y, w, h, dir) {
+  const tx = x + (dir === "left" ? -8 : dir === "right" ? 8 : 0);
+  const ty = y + (dir === "up" ? -8 : dir === "down" ? 8 : 0);
+  const tile = getTileAim(x, y, w, h, dir);
+  return { tx, ty, tile };
+}
 function CharacterTileInteractionSystem(entity, input) {
   var _a, _b, _c;
   const pos = entity.get(PositionComponent);
@@ -459,29 +460,30 @@ function CharacterTileInteractionSystem(entity, input) {
   const d = entity.get(DirectionComponent);
   if (!pos || !inventory || !crop || !size || !d) return;
   if (input.pressA()) {
-    const tile = onTile(pos.x, pos.y);
-    const plant = crop.get(pos.x, pos.y);
-    if (((_a = inventory.equiped) == null ? void 0 : _a.type) === "hoe") dirtActions(pos.x, pos.y, tile);
+    const { tx: targetX, ty: targetY, tile } = getTargetCoords(pos.x, pos.y, size.width, size.height, d.direction);
+    const plant = crop.get(targetX, targetY);
+    if (((_a = inventory.equiped) == null ? void 0 : _a.type) === "hoe") dirtActions(targetX, targetY, tile);
     if (((_b = inventory.equiped) == null ? void 0 : _b.type) === "seed" && inventory.equiped.amount > 0) {
-      if (tile === dirt) {
-        crop.add(toCrop(inventory.equiped, pos.x, pos.y));
+      if (tile === dirt && !plant) {
+        crop.add(toCrop(inventory.equiped, targetX, targetY));
         inventory.equiped.amount--;
       }
       if (inventory.equiped.amount === 0) inventory.equiped = void 0;
     }
     if (((_c = inventory.equiped) == null ? void 0 : _c.type) === "can") {
       if (inventory.water > 0 && (plant == null ? void 0 : plant.stage) === "seed") {
-        if (plant) {
-          plant.stage = "watered";
-        }
+        plant.stage = "watered";
         inventory.water--;
       }
-      if (MapConfig.water.includes(getTileAim(pos.x, pos.y, size.width, size.height, d.direction))) inventory.water = 3;
+      if (MapConfig.water.includes(tile)) inventory.water = 3;
     }
     if (plant && plant.stage === "grown") {
-      inventory.add(grownToFood(plant));
-      crop.remove(pos.x, pos.y);
-      changeTile(0, pos.x, pos.y);
+      if (inventory.itens.length < inventory.size) {
+        const foodItem = grownToFood(plant);
+        inventory.add(foodItem);
+        crop.remove(targetX, targetY);
+        changeTile(0, targetX, targetY);
+      }
     }
   }
 }
@@ -523,13 +525,17 @@ function MapUpdateSystem(entity) {
   const field = entity.get(CropsComponent);
   if (!field) return;
   for (let crop of field.crops) {
+    if (crop.stage === "grown") continue;
     if (crop.time > 0) {
       crop.time--;
     } else {
-      crop.time = crop.stageTime;
-      if (crop.stage === "grown") crop.time = 0;
-      if (crop.stage === "plant") crop.stage = "grown";
-      if (crop.stage === "watered") crop.stage = "plant";
+      if (crop.stage === "watered") {
+        crop.stage = "plant";
+        crop.time = crop.stageTime;
+      } else if (crop.stage === "plant") {
+        crop.stage = "grown";
+        crop.time = 0;
+      }
     }
   }
 }
